@@ -34,14 +34,14 @@ if __name__ == '__main__':
     valid['combined'] = valid.apply(lambda x: list(
         [x['Ground Truth Utterance'], x['Distractor_0'], x['Distractor_1'], x['Distractor_2'], x['Distractor_3'],
          x['Distractor_4'], x['Distractor_5'], x['Distractor_6'], x['Distractor_7'], x['Distractor_8']]), axis=1)
-    distractors = valid['combined'].values.tolist()[:5]
-    contexts = valid['Context'].values.tolist()[:5]
+    distractors = valid['combined'].values.tolist()
+    contexts = valid['Context'].values.tolist()
 
     tokenizer, num_tokens = get_tokenizer()
     print(tokenizer, num_tokens)
 
-    loader = DataLoader(SiameseDialogDataset(contexts, distractors, None, tokenizer, 128, 64, True), batch_size=16,
+    valid_loader = DataLoader(SiameseDialogDataset(contexts, distractors, None, tokenizer, 128, 64, True), batch_size=16,
                         shuffle=False)
 
-    Trainer(model, args).train(train_loader, loader)
+    Trainer(model, args).train(train_loader, valid_loader)
 
