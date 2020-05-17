@@ -42,8 +42,9 @@ class NextSentencePrediction(nn.Module):
                 next_sentence_label=labels,
             )
 
-            preds = F.softmax(seq_rel_scores, dim=-1).max(dim=1)[1].view(bs, 10).tolist()
-            return loss, preds
+            preds = F.softmax(seq_rel_scores, dim=-1).max(dim=1)[1].view(bs, 10).cpu().detach().numpy()
+            labels = labels.cpu().detach().numpy()
+            return loss, preds, labels
         else:
             """
             :input_ids [bs x max_len]
