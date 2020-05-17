@@ -23,9 +23,6 @@ class Trainer(object):
 
         self.model = model.to(get_device_setting())
 
-        if torch.cuda.device_count() > 1:
-            self.model = nn.DataParallel(model)
-
         self.args = args
         self.writer = SummaryWriter(log_dir=args['log_dir'])
         self.optim = AdamW(self.model.parameters(), lr=args['lr'], eps=args['eps'])
