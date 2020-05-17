@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     tokenizer, num_tokens = get_tokenizer()
 
-    train_loader = DataLoader(SiameseDialogDataset(train_ctx, train_utter, train_label, tokenizer, 128, 64, False), batch_size=2, shuffle=False)
+    train_loader = DataLoader(SiameseDialogDataset(train_ctx, train_utter, train_label, tokenizer, 128, 64, False), batch_size=32, shuffle=False)
 
     bert = BertForNextSentencePrediction.from_pretrained('bert-base-cased')
     bert.resize_token_embeddings(num_tokens)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     tokenizer, num_tokens = get_tokenizer()
     print(tokenizer, num_tokens)
 
-    loader = DataLoader(SiameseDialogDataset(contexts, distractors, None, tokenizer, 128, 64, True), batch_size=2,
+    loader = DataLoader(SiameseDialogDataset(contexts, distractors, None, tokenizer, 128, 64, True), batch_size=16,
                         shuffle=False)
 
     Trainer(model, args).train(train_loader, loader)

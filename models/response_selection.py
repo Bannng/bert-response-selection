@@ -63,4 +63,4 @@ class NextSentencePrediction(nn.Module):
 
             preds = F.softmax(seq_rel_scores, dim=-1).max(dim=1)[1]
 
-            return loss, (labels == preds).sum().item() / input_ids.size(0)
+            return loss, (labels == preds).sum().item()

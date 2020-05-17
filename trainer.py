@@ -20,10 +20,11 @@ class Trainer(object):
         :param model: BertForNextSentencePrediction
         :param args: {lr, eps, epoch, log_dir, ...}
         """
-        if torch.cuda.device_count() == 1:
-            self.model = model.to(get_device_setting())
-        else:
-            self.model = nn.DataParallel(model, device_ids=args['gpu_ids'])
+
+        self.model = model.to(get_device_setting())
+
+        if torch.cuda.device_count() > 1:
+            self.model = nn.DataParallel(model)
 
         self.args = args
         self.writer = SummaryWriter(log_dir=args['log_dir'])
@@ -34,11 +35,21 @@ class Trainer(object):
         global_step = 0
         max_grad_norm = 2.0
 
+        correct, bs = 0, 0
+
         for ep in tqdm(range(1, self.args['epoch'] + 1)):
             for i, (input_ids, segment_ids, attn_masks, labels) in tqdm(enumerate(train_loader)):
                 global_step += 1
                 self.optim.zero_grad()
-                loss, acc = self.model(False, input_ids, segment_ids, attn_masks, labels)
+                loss, preds = self.model(False,
+                                         input_ids.to(get_device_setting()),
+                                         segment_ids.to(get_device_setting()),
+                                         attn_masks.to(get_device_setting()),
+                                         labels.to(get_device_setting()))
+                correct += preds
+                bs += input_ids.size(0)
+                acc = correct / bs
+
                 loss.backward()
                 nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
                 self.optim.step()
@@ -60,7 +71,11 @@ class Trainer(object):
 
         with torch.no_grad():
             for i, (input_ids, segment_ids, attn_masks, labels) in tqdm(enumerate(valid_loader)):
-                loss, preds = self.model(True, input_ids, segment_ids, attn_masks, labels)
+                loss, preds = self.model(True,
+                                         input_ids.to(get_device_setting()),
+                                         segment_ids.to(get_device_setting()),
+                                         attn_masks.to(get_device_setting()),
+                                         labels.to(get_device_setting()))
                 bs = input_ids.size(0)
 
                 total_count += bs
