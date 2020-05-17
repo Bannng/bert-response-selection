@@ -26,21 +26,18 @@ class SiameseDialogDataset(Dataset):
 
     def __getitem__(self, idx) -> Any:
         if self.eval == False:
-            print(self.ctx[idx][:self.ctx_max_len-2])
-            print(self.utter[idx])
-
             if len(self.ctx[idx]) < self.ctx_max_len:
-                composition = self.ctx[idx] + ' [SEP] ' + self.utter[idx]
                 composition = self.tokenizer.encode_plus(
-                    composition[:self.ctx_max_len + self.utter_max_len],
+                    self.ctx[idx],
+                    self.utter[idx],
                     add_special_tokens=True,
                     pad_to_max_length=True,
                     max_length=self.ctx_max_len + self.utter_max_len
                 )
             else:
-                composition = self.ctx[idx][:self.ctx_max_len-2] + ' [SEP] ' + self.utter[idx]
                 composition = self.tokenizer.encode_plus(
-                    composition[:self.ctx_max_len + self.utter_max_len],
+                    self.ctx[idx][:self.ctx_max_len-2],
+                    self.utter[idx],
                     add_special_tokens=True,
                     pad_to_max_length=True,
                     max_length=self.ctx_max_len + self.utter_max_len
@@ -49,26 +46,34 @@ class SiameseDialogDataset(Dataset):
             input_ids = torch.LongTensor(composition['input_ids'])
             segment_ids = torch.LongTensor(composition['token_type_ids'])
             attn_masks = torch.LongTensor(composition['attention_mask'])
+            labels = torch.LongTensor([int(not self.label[idx])])
 
-            return input_ids, segment_ids, attn_masks, self.label[idx]
+            return input_ids, segment_ids, attn_masks, labels
         elif self.eval == True:
             composition = []
 
             for u in self.utter[idx]:
                 if len(self.ctx[idx]) < self.ctx_max_len:
-                    composition.append(self.ctx[idx] + ' [SEP] ' + u)
+                    composition.append(self.tokenizer.encode_plus(
+                        self.ctx[idx],
+                        u,
+                        add_special_tokens=True,
+                        pad_to_max_length=True,
+                        max_length=self.ctx_max_len + self.utter_max_len)
+                    )
                 else:
-                    composition.append(self.ctx[idx][:self.ctx_max_len - 2] + ' [SEP] ' + u)
+                    composition.append(self.tokenizer.encode_plus(
+                        self.ctx[idx][:self.ctx_max_len - 2],
+                        u,
+                        add_special_tokens=True,
+                        pad_to_max_length=True,
+                        max_length=self.ctx_max_len + self.utter_max_len)
+                    )
 
-            composition = [self.tokenizer.encode_plus(c,
-                                                      add_special_tokens=True,
-                                                      pad_to_max_length=True,
-                                                      max_length=self.ctx_max_len + self.utter_max_len)
-                           for c in composition]
-            input_ids = [torch.LongTensor(c['input_ids']) for c in composition]
-            segment_ids = [torch.LongTensor(c['token_type_ids']) for c in composition]
-            attn_masks = [torch.LongTensor(c['attention_mask']) for c in composition]
-            labels = [1] + [0] * 9
+            input_ids = torch.LongTensor([c['input_ids'] for c in composition])
+            segment_ids = torch.LongTensor([c['token_type_ids'] for c in composition])
+            attn_masks = torch.LongTensor([c['attention_mask'] for c in composition])
+            labels = [0] + [1] * 9
 
             return input_ids, segment_ids, attn_masks, torch.LongTensor(labels)
 
@@ -89,8 +94,20 @@ if __name__ == '__main__':
     print(len(loader))
 
     for i, (input_ids, segment_ids, attn_masks, labels) in enumerate(loader):
-        print(input_ids)
+        print(input_ids.shape, labels.shape)
         break
+
+    # train = pd.read_csv('../rsc/data/train.csv')
+    # train_utter = train['Utterance']
+    # train_ctx = train['Context']
+    # train_label = train['Label']
+    #
+    # loader = DataLoader(SiameseDialogDataset(train_ctx, train_utter, train_label, tokenizer, 128, 64, False), batch_size=2, shuffle=False)
+    #
+    # for i, (input_ids, segment_ids, attn_masks, labels) in enumerate(loader):
+    #     print(input_ids, labels)
+    #     break
+
 
 
 
