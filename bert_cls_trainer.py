@@ -89,6 +89,8 @@ class Trainer(object):
                     for i in range(len(k)):
                         recall_result += "Recall@%s : " % k[i] + "%.2f%% | " % ((total_correct[i] / total_examples) * 100)
 
+                    print(recall_result)
+
             for i in range(len(k)):
                 self.writer.add_scalar(f'{mode}/Recall@{k[i]}', (float(total_correct[i]) / float(total_examples)))
 

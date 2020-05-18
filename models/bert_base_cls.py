@@ -44,8 +44,9 @@ class BertBaseCLS(nn.Module):
 
             # [(bs * 10) x 1]
             logits = self.cls(pooled_output)
+
+            # [(bs * 10)]
             logits = logits.squeeze(dim=-1)
-            print('viewed logits shape', logits.shape)
 
             return logits
         else:
