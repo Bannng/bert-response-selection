@@ -92,6 +92,6 @@ class Trainer(object):
                     print(recall_result)
 
             for i in range(len(k)):
-                self.writer.add_scalar(f'{mode}/Recall@{k[i]}', (float(total_correct[i]) / float(total_examples)))
+                self.writer.add_scalar(f'{mode}/Recall@{k[i]}', (float(total_correct[i]) / float(total_examples)), gs)
 
         self.model.train()

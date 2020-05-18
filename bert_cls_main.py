@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     valid_loader = DataLoader(
         SiameseDialogDataset(contexts, distractors, None, tokenizer, parse.ctx_max_len, parse.utter_max_len, True),
-        batch_size=16, shuffle=False, pin_memory=True, num_workers=parse.num_workers)
+        batch_size=parse.valid_bs, shuffle=False, pin_memory=True, num_workers=parse.num_workers)
 
     args = {
         'lr': parse.lr,
@@ -69,4 +69,3 @@ if __name__ == '__main__':
     }
 
     Trainer(model, args).train(train_loader, valid_loader)
-
