@@ -1,1 +1,2 @@
-python3 main.py --epoch 5 --train_bs 32 --valid_bs 16 --ctx_max_len 128 --utter_max_len 64 --lr 1e-5 --eps 1e-5 --log_dir ./runs/ --num_workers 8
+python3 nsp_main.py --epoch 5 --train_bs 32 --valid_bs 16 --ctx_max_len 128 --utter_max_len 64 --lr 1e-5 --eps 1e-5 --log_dir ./runs/ --num_workers 8
+python3 bert_cls_main.py --epoch 5 --train_bs 32 --valid_bs 16 --ctx_max_len 128 --utter_max_len 64 --lr 1e-5 --eps 1e-5 --log_dir ./runs/ --num_workers 8

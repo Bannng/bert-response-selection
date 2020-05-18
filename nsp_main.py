@@ -5,7 +5,7 @@ __email__ = 'judepark@kookmin.ac.kr'
 from torch.utils.data import DataLoader
 from transformers import BertForNextSentencePrediction
 from models.response_selection import NextSentencePrediction
-from trainer import Trainer
+from nsp_trainer import Trainer
 from utils.udc_data_loader import SiameseDialogDataset
 from utils.udc_data_util import get_tokenizer
 
